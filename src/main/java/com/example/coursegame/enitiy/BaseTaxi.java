@@ -10,8 +10,6 @@ public abstract class BaseTaxi implements Taxi {
     private String driverStatus;
     private TaxiState taxiState;
 
-    public BaseTaxi(String taxiType, String driverStatus) {
-    }
 
     @Override
     public void setWaiting() {
