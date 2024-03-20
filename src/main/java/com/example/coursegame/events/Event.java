@@ -9,5 +9,5 @@ public abstract class Event {
         this.description = description;
     }
 
-    public abstract void execute(Trip trip);
+    public abstract void execute(Trip trip, int userChoice);
 }
