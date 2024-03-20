@@ -6,6 +6,7 @@ import com.example.coursegame.strategy.PricingStrategy;
 
 public class EconomyTaxiDecorator extends BaseTaxi {
     private EconomyPricingStrategy pricingStrategy;
+    private int speed = 8;
     public String getTaxiType() {
         return "Economy";
     }

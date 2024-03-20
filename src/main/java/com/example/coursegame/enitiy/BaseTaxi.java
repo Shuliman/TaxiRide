@@ -9,7 +9,7 @@ public abstract class BaseTaxi implements Taxi {
     private String taxiType;
     private String driverStatus;
     private TaxiState taxiState;
-
+    private int speed;
 
     @Override
     public void setWaiting() {

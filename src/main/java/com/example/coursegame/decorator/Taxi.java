@@ -6,4 +6,6 @@ public interface Taxi {
     void setArrived();
     String getTaxiType();
     String getDriverStatus();
+
+    int getSpeed();
 }

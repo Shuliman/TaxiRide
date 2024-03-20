@@ -6,6 +6,8 @@ import com.example.coursegame.strategy.PricingStrategy;
 
 public class ComfortTaxiDecorator extends BaseTaxi {
     private ComfortPricingStrategy pricingStrategy;
+
+    private int speed = 11;
     @Override
     public String getTaxiType() {
         return "Comfort";
