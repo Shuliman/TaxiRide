@@ -6,8 +6,8 @@ import com.example.coursegame.strategy.PricingStrategy;
 public class ComfortTaxiDecorator extends BaseTaxi {
     private PricingStrategy pricingStrategy;
 
-    public ComfortTaxiDecorator(String taxiNumber, String taxiType, String driverStatus) {
-        super(taxiNumber, taxiType, driverStatus);
+    public ComfortTaxiDecorator(String taxiType, String driverStatus) {
+        super(taxiType, driverStatus);
     }
 
     @Override
