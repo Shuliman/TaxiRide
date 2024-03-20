@@ -2,10 +2,16 @@ package com.example.coursegame.events;
 
 import com.example.coursegame.gameplay.Trip;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class DriverHitTrampolineEvent extends Event {
     public DriverHitTrampolineEvent() {
         super("Водій натрапив на трамплін");
     }
+    private static final List<String> OPTIONS = Arrays.asList(
+            "Сказати водію що він здурів!"
+    );
 
     @Override
     public void execute(Trip trip, int userChoice) {
@@ -16,9 +22,12 @@ public class DriverHitTrampolineEvent extends Event {
 
     private EventEffect reaction(){
         return trip -> {
-            System.out.println("Сказати водію що він здурів!");
+            System.out.println("Ви здуріли!");
             trip.reduceTime(30);
         };
     }
+    @Override
+    public List<String> getOptions() {
+        return OPTIONS;
+    }
 }
-
