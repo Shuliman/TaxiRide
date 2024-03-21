@@ -3,11 +3,19 @@ package com.example.coursegame.decorator;
 import com.example.coursegame.enitiy.BaseTaxi;
 import com.example.coursegame.strategy.ComfortPricingStrategy;
 import com.example.coursegame.strategy.PricingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ComfortTaxiDecorator extends BaseTaxi {
-    private ComfortPricingStrategy pricingStrategy;
+    private final PricingStrategy pricingStrategy;
 
-    private int speed = 11;
+    private final int speed = 11;
+    @Autowired
+    public ComfortTaxiDecorator(@Qualifier("comfortPricingStrategy") PricingStrategy pricingStrategy) {
+        this.pricingStrategy = pricingStrategy;
+    }
     @Override
     public String getTaxiType() {
         return "Comfort";
