@@ -2,9 +2,7 @@ package com.example.coursegame.enitiy;
 
 import com.example.coursegame.state.TaxiState;
 import com.example.coursegame.decorator.Taxi;
-import lombok.Data;
 
-@Data
 public abstract class BaseTaxi implements Taxi {
     private String taxiType;
     private String driverStatus;
@@ -25,6 +23,7 @@ public abstract class BaseTaxi implements Taxi {
     public void setArrived() {
         this.taxiState = TaxiState.ARRIVED;
     }
+    public  abstract int getSpeed();
 
     public abstract double getRideCost(double distance);
 }

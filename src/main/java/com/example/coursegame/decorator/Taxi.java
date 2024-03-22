@@ -5,7 +5,7 @@ public interface Taxi {
     void setInTransit();
     void setArrived();
     String getTaxiType();
-    String getDriverStatus();
+//    String getDriverStatus();
 
     int getSpeed();
 }
