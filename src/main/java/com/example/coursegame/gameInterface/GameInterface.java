@@ -1,78 +1,61 @@
 package com.example.coursegame.gameInterface;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.gui2.*;
-import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.screen.TerminalScreen;
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.Terminal;
+import com.example.coursegame.observer.Observer;
+import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStreamReader;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+@Component
+public class GameInterface implements Observer {
+    private final BufferedReader reader;
 
-public class GameInterface {
-    private Screen screen;
-    private final MultiWindowTextGUI gui;
-
-    public GameInterface() throws IOException {
-        Terminal terminal = new DefaultTerminalFactory().createTerminal();
-        screen = new TerminalScreen(terminal);
-        screen.startScreen();
-        gui = new MultiWindowTextGUI(screen, new DefaultWindowManager(), new EmptySpace(TextColor.ANSI.BLUE));
+    public GameInterface() {
+        this.reader = new BufferedReader(new InputStreamReader(System.in));
     }
-
-    public String askForTaxiChoice() throws IOException {
-        List<String> options = Arrays.asList("Economy", "Comfort", "Premium");
+    public void showGameStartInfo(double distance, int money) {
+        String infoMessage = String.format(
+                "Початок поїздки:\n" +
+                        "Дистанція поїздки: %.2f км.\n" +
+                        "Ваш баланс: %d грн.\n",
+                distance, money);
+        showMessageBox(infoMessage);
+    }
+    public String askForTaxiChoice(double economyCost, double comfortCost, double premiumCost) throws IOException {
+        List<String> options = List.of(
+                String.format("Economy - %.2f грн.", economyCost),
+                String.format("Comfort - %.2f грн.", comfortCost),
+                String.format("Premium - %.2f грн.", premiumCost)
+        );
         int choiceIndex = getUserChoice("Оберіть тип таксі:", options);
-        return options.get(choiceIndex);
+        return options.get(choiceIndex).split(" - ")[0]; //return only taxi type
     }
-
     public int getUserChoice(String question, List<String> options) throws IOException {
-        // Создание диалогового окна для выбора действия игроком
-        final AtomicInteger selectedOption = new AtomicInteger(-1);
-        BasicWindow window = new BasicWindow();
-        Panel panel = new Panel(new GridLayout(1));
-
-        panel.addComponent(new Label(question));
-        ActionListBox actionListBox = new ActionListBox();
+        System.out.println(question);
         for (int i = 0; i < options.size(); i++) {
-            int idx = i;
-            actionListBox.addItem(options.get(i), () -> {
-                selectedOption.set(idx);
-                window.close();
-            });
+            System.out.println((i + 1) + ". " + options.get(i));
         }
-        panel.addComponent(actionListBox);
-        window.setComponent(panel);
 
-        gui.addWindowAndWait(window);
-
-        return selectedOption.get();
+        int choice = 0;
+        while (choice < 1 || choice > options.size()) {
+            try {
+                System.out.print("Введіть ваш вибір ");
+                choice = Integer.parseInt(reader.readLine());
+                if (choice < 1 || choice > options.size()) {
+                    System.out.println("Невірний вибір, повторіть спробу.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Будь ласка, введіть число.");
+            }
+        }
+        return choice - 1; // Adjusting because array index starts at 0
     }
-    public void showMessageBox(String message) throws IOException {
-        // Создание окна сообщения
-        BasicWindow messageWindow = new BasicWindow();
-        Panel panel = new Panel(new GridLayout(1)); // Используем GridLayout для упорядоченного расположения компонентов
-
-        // Добавляем метку с переданным сообщением
-        panel.addComponent(new Label(message));
-
-        // Добавляем кнопку для закрытия окна
-        Button closeButton = new Button("OK", messageWindow::close);
-        panel.addComponent(closeButton);
-
-        // Установка компонента панели в окно
-        messageWindow.setComponent(panel);
-
-        // Отображение окна сообщения
-        gui.addWindowAndWait(messageWindow);
+    @Override
+    public void update(String event, String message) {
+        showMessageBox(event + message);
     }
-
-
-    public void close() throws IOException {
-        screen.stopScreen();
+    public void showMessageBox(String message) {
+        System.out.println(message);
     }
 }
