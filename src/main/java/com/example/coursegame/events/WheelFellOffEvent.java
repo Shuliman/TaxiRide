@@ -17,10 +17,10 @@ public class WheelFellOffEvent extends Event {
     @Override
     public void execute(Trip trip, int userChoice) {
         switch (userChoice){
-        case 1:
+        case 0:
         giveWrenchEffect().applyEffect(trip);
         break;
-        case 2:
+        case 1:
             giveHoseEffect().applyEffect(trip);
             break;
         default:
