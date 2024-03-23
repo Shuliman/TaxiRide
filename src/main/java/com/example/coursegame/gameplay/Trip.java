@@ -22,7 +22,7 @@ public class Trip implements Observable {
     private final ApplicationContext context;
     private final double distance;
     private final Player player;
-    private int actualTime;
+    private int travelTime;
     private final List<Observer> observers = new ArrayList<>();
     private List<Event> events;
     private final EventManager eventManager;
@@ -30,7 +30,7 @@ public class Trip implements Observable {
     public Trip(Player player, EventManager eventManager, ApplicationContext context, GameInterface gameInterface) {
         this.player = player;
         this.distance = generateRandomDistance(100, 300);
-        this.actualTime = 0;
+        this.travelTime = 0;
         this.events = new ArrayList<>();
         this.eventManager = eventManager;
         this.context = context;
@@ -64,13 +64,13 @@ public class Trip implements Observable {
             }
         }
         player.setSelectedTaxi(chosenTaxi);
-        this.actualTime = calculateInitialTime(player);
+        this.travelTime = calculateInitialTime(player);
         int minimalTime = calculateMinimalTime();
 
-        this.events = eventManager.generateEvents(actualTime);
+        this.events = eventManager.generateEvents(travelTime);
 
         notifyObservers("Поїздка почалася!\n", "Дистанція: " + Math.ceil(distance) +
-                " км. Очікуваний час: " + actualTime + " хв" + " Щоб прибути вчасно терба впоратись за: " + minimalTime
+                " км. Очікуваний час: " + travelTime + " хв" + " Щоб прибути вчасно терба впоратись за: " + minimalTime
                 + " хв.");
 
         simulateEvents(gameInterface);
@@ -78,7 +78,7 @@ public class Trip implements Observable {
         checkIfArrivedOnTime(minimalTime);
     }
     private void checkIfArrivedOnTime(int minimalTime) {
-        if (actualTime <= minimalTime) {
+        if (travelTime <= minimalTime) {
             notifyObservers("Поїздка завершена \n", "Ви успішно прибули в пункт призначення вчасно.");
         } else {
             notifyObservers("Поїздка завершена \n", "Ви запізнилися.");
@@ -118,10 +118,12 @@ public class Trip implements Observable {
     }
 
     public void addTime(int additionalTime) {
-        this.actualTime += additionalTime;
+        this.travelTime += additionalTime;
+        notifyObservers("Поїздка тепер триватиме: ", String.valueOf(this.travelTime) +" хв.");
     }
 
     public void reduceTime(int reducedTime) {
-        this.actualTime -= reducedTime;
+        this.travelTime -= reducedTime;
+        notifyObservers("Поїздка тепер триватиме: ", String.valueOf(this.travelTime) +" хв.");
     }
 }
