@@ -40,7 +40,7 @@ public class GameInterface implements Observer {
         int choice = 0;
         while (choice < 1 || choice > options.size()) {
             try {
-                System.out.print("Введіть ваш вибір ");
+                System.out.print("Введіть ваш вибір: ");
                 choice = Integer.parseInt(reader.readLine());
                 if (choice < 1 || choice > options.size()) {
                     System.out.println("Невірний вибір, повторіть спробу.");
