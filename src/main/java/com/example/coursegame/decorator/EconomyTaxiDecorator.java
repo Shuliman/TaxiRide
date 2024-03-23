@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class EconomyTaxiDecorator extends BaseTaxi {
     private final PricingStrategy pricingStrategy;
     @Getter
-    private final int speed = 50;
+    private final int speed = 20;
 
     @Autowired
     public EconomyTaxiDecorator(@Qualifier("economyPricingStrategy") PricingStrategy pricingStrategy) {
