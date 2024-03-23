@@ -22,7 +22,6 @@ public class DriverHitTrampolineEvent extends Event {
 
     private EventEffect reaction(){
         return trip -> {
-            System.out.println("Ви здуріли!");
             trip.reduceTime(30);
         };
     }
