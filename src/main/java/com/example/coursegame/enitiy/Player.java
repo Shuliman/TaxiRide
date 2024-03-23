@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 @Component
 @Getter
-public class Player implements Observer {
+public class Player {
     private int money;
     @Setter
     private Taxi selectedTaxi;
@@ -23,10 +23,6 @@ public class Player implements Observer {
     @PostConstruct
     public void init() {
         this.money = new Random().nextInt(maxMoney - minMoney + 1) + minMoney;
-    }
-    @Override
-    public void update(String event, String message) {
-        System.out.println("Повідомлення для гравця: " + event + " - " + message);
     }
 
     public boolean canAffordTaxi(BaseTaxi taxi, double distance) {
