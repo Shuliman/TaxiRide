@@ -1,5 +1,6 @@
 package com.example.coursegame.gameplay;
 
+import com.example.coursegame.events.AccidentEvent;
 import com.example.coursegame.events.DriverHitTrampolineEvent;
 import com.example.coursegame.events.Event;
 import com.example.coursegame.events.WheelFellOffEvent;
@@ -14,17 +15,20 @@ public class EventManager {
 
     public List<Event> generateEvents(int expectedTime) {
         List<Event> events = new ArrayList<>();
-        int eventsCount = expectedTime / 5; // Предполагаем, что одно событие может происходить каждые 5 минут поездки
+        int eventsCount = expectedTime / 3;
 
         for (int i = 0; i < eventsCount; i++) {
-            switch (random.nextInt(2)) { // Допустим, у нас есть 2 типа событий
+            switch (random.nextInt(3)) {
                 case 0:
                     events.add(new WheelFellOffEvent());
                     break;
                 case 1:
                     events.add(new DriverHitTrampolineEvent());
                     break;
-                // Здесь можно добавить больше случаев для разных событий
+                case 2:
+                    events.add(new AccidentEvent());
+                    break;
+
             }
         }
         return events;
