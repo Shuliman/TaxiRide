@@ -19,35 +19,39 @@ import java.util.List;
 import java.util.Random;
 @Component
 public class Trip implements Observable {
-    @Autowired
-    private ApplicationContext context;
+    private final ApplicationContext context;
     private final double distance;
-    private  Player player;
+    private final Player player;
     private int actualTime;
-    private List<Observer> observers = new ArrayList<>();
+    private final List<Observer> observers = new ArrayList<>();
     private List<Event> events;
     private final EventManager eventManager;
 
-    public Trip(Player player, EventManager eventManager) {
+    public Trip(Player player, EventManager eventManager, ApplicationContext context, GameInterface gameInterface) {
         this.player = player;
-        this.distance = generateRandomDistance(5, 20);
+        this.distance = generateRandomDistance(100, 300);
         this.actualTime = 0;
         this.events = new ArrayList<>();
         this.eventManager = eventManager;
+        this.context = context;
+        addObserver(gameInterface);
     }
     private int calculateMinimalTime() {
         int MIN_SPEED = 7;
         return (int) Math.ceil(this.distance / MIN_SPEED);
     }
-
     private double generateRandomDistance(double min, double max) {
         return min + (max - min) * new Random().nextDouble();
     }
-
     public void start(GameInterface gameInterface) throws IOException {
+        gameInterface.showGameStartInfo(distance, player.getMoney());
         BaseTaxi chosenTaxi = null;
         while (chosenTaxi == null) {
-            String taxiChoice = gameInterface.askForTaxiChoice();
+            String taxiChoice = gameInterface.askForTaxiChoice(
+                    context.getBean(EconomyTaxiDecorator.class).getRideCost(distance),
+                    context.getBean(ComfortTaxiDecorator.class).getRideCost(distance),
+                    context.getBean(PremiumTaxiDecorator.class).getRideCost(distance)
+            );
             chosenTaxi = switch (taxiChoice) {
                 case "Economy" -> context.getBean(EconomyTaxiDecorator.class);
                 case "Comfort" -> context.getBean(ComfortTaxiDecorator.class);
@@ -60,32 +64,28 @@ public class Trip implements Observable {
             }
         }
         player.setSelectedTaxi(chosenTaxi);
-        this.actualTime = calculateInitialTime(player); // Теперь это начальное значение фактического времени
-        int minimalTime = calculateMinimalTime(); // Минимальное время для сравнения в конце
+        this.actualTime = calculateInitialTime(player);
+        int minimalTime = calculateMinimalTime();
 
-        // Инициализация и генерация событий на основе ожидаемого времени поездки
         this.events = eventManager.generateEvents(actualTime);
 
-        // Уведомление об начале поездки
-        notifyObservers("Поїздка почалася", "Дистанція: " + distance + " км. Очікуваний час: " + actualTime + " хв.");
+        notifyObservers("Поїздка почалася!\n", "Дистанція: " + Math.ceil(distance) +
+                " км. Очікуваний час: " + actualTime + " хв" + " Щоб прибути вчасно терба впоратись за: " + minimalTime
+                + " хв.");
 
-        // Симуляция событий
         simulateEvents(gameInterface);
 
-        // Проверка, прибыл ли игрок вовремя
         checkIfArrivedOnTime(minimalTime);
     }
-
     private void checkIfArrivedOnTime(int minimalTime) {
         if (actualTime <= minimalTime) {
-            notifyObservers("Поїздка завершена", "Ви успішно прибули в пункт призначення вчасно.");
+            notifyObservers("Поїздка завершена \n", "Ви успішно прибули в пункт призначення вчасно.");
         } else {
-            notifyObservers("Поїздка завершена", "Ви запізнилися.");
+            notifyObservers("Поїздка завершена \n", "Ви запізнилися.");
         }
     }
-
     public int calculateInitialTime(Player player) {
-        int speed = player.getSelectedTaxi().getSpeed(); // Предполагается, что у Taxi есть метод getSpeed()
+        int speed = player.getSelectedTaxi().getSpeed();
         return (int) Math.ceil(this.distance / speed);
     }
 
