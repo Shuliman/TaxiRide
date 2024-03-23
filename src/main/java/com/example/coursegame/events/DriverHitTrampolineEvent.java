@@ -9,7 +9,7 @@ public class DriverHitTrampolineEvent extends Event {
     public DriverHitTrampolineEvent() {
         super("Водій натрапив на трамплін");
     }
-    private static final List<String> OPTIONS = Arrays.asList(
+    private static final List<String> OPTIONS = List.of(
             "Сказати водію що він здурів!"
     );
 
