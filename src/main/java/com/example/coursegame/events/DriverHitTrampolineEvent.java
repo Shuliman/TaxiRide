@@ -16,7 +16,7 @@ public class DriverHitTrampolineEvent extends Event {
     @Override
     public void execute(Trip trip, int userChoice) {
         System.out.println("Водій натрапив на трамплін. Час поїздки скоротився на 30.");
-        if (userChoice == 1)
+        if (userChoice == 0)
             reaction().applyEffect(trip);
     }
 
