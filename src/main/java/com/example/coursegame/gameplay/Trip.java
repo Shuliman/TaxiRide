@@ -1,15 +1,11 @@
 package com.example.coursegame.gameplay;
 
-import com.example.coursegame.decorator.ComfortTaxiDecorator;
-import com.example.coursegame.decorator.EconomyTaxiDecorator;
-import com.example.coursegame.decorator.PremiumTaxiDecorator;
 import com.example.coursegame.enitiy.BaseTaxi;
 import com.example.coursegame.enitiy.Player;
 import com.example.coursegame.events.Event;
 import com.example.coursegame.gameInterface.GameInterface;
 import com.example.coursegame.observer.Observable;
 import com.example.coursegame.observer.Observer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +13,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static com.example.coursegame.service.EventSimulator.simulate;
+import static com.example.coursegame.service.TaxiChooser.chooseTaxi;
+import static com.example.coursegame.service.TimeCalculator.calculateInitialTime;
+import static com.example.coursegame.service.TimeCalculator.calculateMinimalTime;
+
 @Component
 public class Trip implements Observable {
     private final ApplicationContext context;
@@ -36,36 +38,15 @@ public class Trip implements Observable {
         this.context = context;
         addObserver(gameInterface);
     }
-    private int calculateMinimalTime() {
-        int MIN_SPEED = 7;
-        return (int) Math.ceil(this.distance / MIN_SPEED);
-    }
     private double generateRandomDistance(double min, double max) {
         return min + (max - min) * new Random().nextDouble();
     }
     public void start(GameInterface gameInterface) throws IOException {
         gameInterface.showGameStartInfo(distance, player.getMoney());
-        BaseTaxi chosenTaxi = null;
-        while (chosenTaxi == null) {
-            String taxiChoice = gameInterface.askForTaxiChoice(
-                    context.getBean(EconomyTaxiDecorator.class).getRideCost(distance),
-                    context.getBean(ComfortTaxiDecorator.class).getRideCost(distance),
-                    context.getBean(PremiumTaxiDecorator.class).getRideCost(distance)
-            );
-            chosenTaxi = switch (taxiChoice) {
-                case "Economy" -> context.getBean(EconomyTaxiDecorator.class);
-                case "Comfort" -> context.getBean(ComfortTaxiDecorator.class);
-                case "Premium" -> context.getBean(PremiumTaxiDecorator.class);
-                default -> context.getBean(EconomyTaxiDecorator.class);
-            };
-            if (!player.canAffordTaxi(chosenTaxi, this.distance)) {
-                gameInterface.showMessageBox("Недостатньо коштів. Виберіть інше таксі.");
-                chosenTaxi = null;
-            }
-        }
+        BaseTaxi chosenTaxi = chooseTaxi(gameInterface, context, player, this.distance);
         player.setSelectedTaxi(chosenTaxi);
-        this.travelTime = calculateInitialTime(player);
-        int minimalTime = calculateMinimalTime();
+        this.travelTime = calculateInitialTime(this.distance, player.getSelectedTaxi().getSpeed());
+        int minimalTime = calculateMinimalTime(this.distance, 7);
 
         this.events = eventManager.generateEvents(travelTime);
 
@@ -73,7 +54,7 @@ public class Trip implements Observable {
                 " км. Очікуваний час: " + travelTime + " хв" + " Щоб прибути вчасно терба впоратись за: " + minimalTime
                 + " хв.");
 
-        simulateEvents(gameInterface);
+        simulate(gameInterface, this.events, this);
 
         checkIfArrivedOnTime(minimalTime);
     }
@@ -84,22 +65,6 @@ public class Trip implements Observable {
             notifyObservers("Поїздка завершена \n", "Ви запізнилися.");
         }
     }
-    public int calculateInitialTime(Player player) {
-        int speed = player.getSelectedTaxi().getSpeed();
-        return (int) Math.ceil(this.distance / speed);
-    }
-
-    private void simulateEvents(GameInterface gameInterface) throws IOException {
-        Random random = new Random();
-        for (Event event : events) {
-            List<String> options = event.getOptions();
-            if (!options.isEmpty()) {
-                int userChoice = gameInterface.getUserChoice(event.getDescription(), options);
-                event.execute(this, userChoice);
-            }
-        }
-    }
-
     @Override
     public void addObserver(Observer o) {
         observers.add(o);
@@ -119,11 +84,11 @@ public class Trip implements Observable {
 
     public void addTime(int additionalTime) {
         this.travelTime += additionalTime;
-        notifyObservers("Поїздка тепер триватиме: ", String.valueOf(this.travelTime) +" хв.");
+        notifyObservers("Поїздка тепер триватиме: ", this.travelTime +" хв.");
     }
 
     public void reduceTime(int reducedTime) {
         this.travelTime -= reducedTime;
-        notifyObservers("Поїздка тепер триватиме: ", String.valueOf(this.travelTime) +" хв.");
+        notifyObservers("Поїздка тепер триватиме: ", this.travelTime +" хв.");
     }
 }
